@@ -1,16 +1,20 @@
-# React + Vite
+# Менеджер задач с интеграцией Redux Toolkit
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Как изменилась архитектура после внедрения Redux
 
-Currently, two official plugins are available:
+1. Все задачи теперь хранятся в глобальном `store`. Компоненты больше не управляют массивом задач напрямую внутри себя.
+2.  Компонент `App` инициирует изменения, отправляя экшены (`dispatch(action)`). Redux принимает их, обрабатывает в редьюсерах, обновляет стейт и автоматически уведомляет компонент `App` через селекторы.
+3.  Операции сохранения данных в `localStorage` и мутации массива вынесены из UI-слоя в изолированный файл `tasksSlice.js`. В самом `App.jsx` остались только локальные стейты для управления полями ввода (инпутами).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Архитектура Redux: Редьюсеры и Селекторы
 
-## React Compiler
+### Созданные экшены и редьюсеры (`tasksSlice.js`):
+* `addTask`: Создает объект новой задачи (генерирует ID и дату) и добавляет его в начало списка.
+* `toggleTask`: Находит задачу по переданному `id` и меняет флаг `isCompleted` на противоположный.
+* `clearCompleted`: Фильтрует массив, удаляя все выполненные задачи.
+* *Каждый из редьюсеров автоматически перезаписывает актуальное состояние в `localStorage`.*
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Созданные селекторы:
+* `selectAllTasks`: Возвращает полный массив всех существующих задач.
+* `selectActiveTasks`: Возвращает массив отфильтрованных задач, у которых `isCompleted: false`.
+* `selectCompletedTasks`: Возвращает массив отфильтрованных задач, у которых `isCompleted: true`.
